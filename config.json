@@ -1,0 +1,23 @@
+{
+  "port": 3000,
+  "adminPassword": "1234",
+  "publicUrl": "",
+  "title": "DMSS kviz",
+  "subtitle": "Od podataka ka odlučivanju · Zlatibor 2026",
+  "scheduleNote": "Kviz igramo u sredu 25. 11. u 17.30 i u četvrtak 26. 11. u 17.00. Prijavite se odmah — traje 20 sekundi.",
+  "defaultTimeLimit": 20,
+  "scoring": { "max": 1000, "min": 500 },
+  "animalRankBy": "total",
+  "animals": [
+    { "id": "pile",    "name": "Pile",    "emoji": "🐔" },
+    { "id": "zirafa",  "name": "Žirafa",  "emoji": "🦒" },
+    { "id": "lav",     "name": "Lav",     "emoji": "🦁" },
+    { "id": "orao",    "name": "Orao",    "emoji": "🦅" },
+    { "id": "delfin",  "name": "Delfin",  "emoji": "🐬" },
+    { "id": "sova",    "name": "Sova",    "emoji": "🦉" },
+    { "id": "lisica",  "name": "Lisica",  "emoji": "🦊" },
+    { "id": "medved",  "name": "Medved",  "emoji": "🐻" },
+    { "id": "pingvin", "name": "Pingvin", "emoji": "🐧" },
+    { "id": "panda",   "name": "Panda",   "emoji": "🐼" }
+  ]
+}

@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#060a1c">
+<title>DMSS kviz</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="fx.css">
+<style>
+  body { min-height: 100dvh; display: flex; flex-direction: column; }
+  .top { position: sticky; top: 0; z-index: 5; display: flex; align-items: center; gap: .6rem; padding: .7rem 1rem; padding-top: max(.7rem, env(safe-area-inset-top));
+    background: rgba(6, 10, 28, .72); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--glass-line); }
+  .mark { width: 2rem; height: 2rem; border-radius: .6rem; background: var(--g-brand); display: grid; place-items: center; flex: none; }
+  .mark svg { width: 60%; }
+  .top .title { font-weight: 800; flex: 1; font-size: 1.05rem; letter-spacing: -.02em; }
+  .me { display: flex; align-items: center; gap: .45rem; font-weight: 700; max-width: 62%; }
+  .me .av { width: 2.1rem; height: 2.1rem; border-radius: 50%; display: grid; place-items: center; font-size: 1.25rem; background: var(--glass-2); border: 1px solid var(--glass-line); flex: none; }
+  .me .nick { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .95rem; }
+  .me .score { background: var(--g-brand); color: #0b1030; border-radius: 999px; padding: .15rem .6rem; font-size: .85rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+  main { flex: 1; width: 100%; max-width: 520px; margin: 0 auto; padding: 1.1rem 1rem 1.4rem; display: flex; flex-direction: column; gap: 1rem; }
+  .offline { background: #b45309; color: #fff; text-align: center; padding: .4rem; font-size: .9rem; }
+  .card { padding: 1.2rem; }
+  .muted { color: var(--ink-2); }
+
+  /* prijava */
+  .hero h1 { font-size: 2.3rem; line-height: 1.02; letter-spacing: -.04em; margin: .9rem 0 .4rem; font-weight: 800; }
+  .hero p { margin: 0; color: var(--ink-2); font-weight: 500; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 14px; background: rgba(255, 255, 255, .05); border: 1px solid var(--glass-line); }
+  .seg button { border: 0; background: transparent; color: var(--ink-3); padding: .7rem; border-radius: 11px; font-weight: 700; }
+  .seg button[aria-selected="true"] { background: var(--glass-2); color: var(--ink); box-shadow: 0 1px 0 rgba(255,255,255,.12) inset; }
+  .flabel { display: flex; align-items: center; gap: .5rem; font-weight: 700; margin-bottom: .6rem; }
+  .flabel .n { width: 1.5rem; height: 1.5rem; border-radius: .45rem; display: grid; place-items: center; font-size: .8rem; font-weight: 800; background: var(--g-brand); color: #0b1030; }
+  .animals { display: grid; grid-template-columns: repeat(5, 1fr); gap: .45rem; }
+  .animal { position: relative; border: 1px solid var(--glass-line); background: rgba(255, 255, 255, .04); border-radius: 14px; padding: .5rem .1rem .4rem; display: grid; justify-items: center; gap: .15rem; min-height: 74px; color: var(--ink-2);
+    transition: transform .2s, background .2s, border-color .2s; }
+  .animal .emoji { font-size: 2rem; transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+  .animal .nm { font-size: .7rem; font-weight: 700; }
+  .animal[aria-pressed="true"] { background: rgba(139, 92, 246, .22); border-color: transparent; color: var(--ink); transform: translateY(-2px); }
+  .animal[aria-pressed="true"]::before { content: ""; position: absolute; inset: -1px; border-radius: 14px; padding: 2px; background: var(--g-brand);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .animal[aria-pressed="true"] .emoji { transform: scale(1.18) rotate(-6deg); }
+  .inp { width: 100%; min-height: 52px; border-radius: 14px; border: 1px solid var(--glass-line); background: rgba(255, 255, 255, .05); color: var(--ink); padding: .8rem .95rem; font-size: 1.05rem; font-weight: 600; }
+  .inp::placeholder { color: var(--ink-3); font-weight: 500; }
+  .inp:focus { outline: none; border-color: #818cf8; box-shadow: 0 0 0 4px rgba(129, 140, 248, .22); }
+  .pin { letter-spacing: .7em; font-size: 1.6rem; text-align: center; font-variant-numeric: tabular-nums; padding-left: 1.6rem; }
+  .hint { font-size: .85rem; color: var(--ink-3); margin-top: .4rem; }
+  .hint.ok { color: var(--good); } .hint.bad { color: var(--bad2); }
+  .err { background: rgba(251, 113, 133, .14); border: 1px solid rgba(251, 113, 133, .45); color: #fecdd3; border-radius: 12px; padding: .65rem .8rem; font-size: .92rem; }
+  .field { margin-bottom: 1.15rem; }
+  .cta { position: relative; overflow: hidden; width: 100%; min-height: 56px; border: 0; border-radius: 16px; font-weight: 800; font-size: 1.1rem; color: #0b1030; background: var(--g-brand);
+    box-shadow: 0 16px 40px -14px rgba(96, 165, 250, .9); }
+  .cta::after { content: ""; position: absolute; top: 0; bottom: 0; width: 35%; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent); animation: shine 2.8s ease-in-out infinite; }
+  .cta:disabled { opacity: .55; }
+
+  /* čekanje */
+  .stage { text-align: center; padding: 1.8rem 1.2rem; }
+  .avatar { position: relative; width: 7.5rem; height: 7.5rem; margin: .4rem auto 1.2rem; border-radius: 50%; display: grid; place-items: center; font-size: 4rem; background: rgba(255, 255, 255, .07); }
+  .avatar::before { content: ""; position: absolute; inset: -3px; border-radius: 50%; padding: 3px; background: var(--g-brand);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; }
+  .avatar .rg { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(96, 165, 250, .6); animation: pulse-ring 2.4s ease-out infinite; }
+  .avatar .rg:nth-child(2) { animation-delay: 1.2s; }
+  .avatar .e { animation: floaty 4s ease-in-out infinite; }
+  .stage h2 { margin: .3rem 0 .5rem; font-size: 1.55rem; letter-spacing: -.03em; font-weight: 800; }
+  .stage p { margin: .3rem 0; color: var(--ink-2); }
+  .mystats { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+  .mystats .glass { padding: .95rem .8rem; text-align: center; border-radius: 18px; }
+  .mystats .v { font-size: 1.75rem; font-weight: 800; letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+  .mystats .l { font-size: .78rem; color: var(--ink-3); font-weight: 600; }
+
+  /* pitanje */
+  .qhead { display: flex; justify-content: space-between; align-items: center; }
+  .mring { position: relative; width: 3.4rem; height: 3.4rem; }
+  .mring svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .mring .n { position: absolute; inset: 0; display: grid; place-items: center; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .mring.low .n { color: var(--bad2); }
+  .qtext { font-size: 1.3rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.25; margin: .1rem 0 .2rem; animation: focusin .5s both; }
+  .opts { display: grid; gap: .7rem; }
+  .opt { position: relative; display: flex; align-items: center; gap: .8rem; text-align: left; border: 0; border-radius: 18px; padding: 1rem 1rem; min-height: 70px;
+    background: var(--og); color: #fff; font-weight: 800; font-size: 1.08rem; letter-spacing: -.01em; box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 14px 30px -16px var(--oc);
+    animation: rise .45s cubic-bezier(.2, .8, .2, 1) both; transition: transform .25s, opacity .3s, filter .3s, box-shadow .3s; }
+  .opt .badge { font-size: 1.15rem; }
+  .opt .letter { font-size: .8rem; opacity: .8; width: .9em; }
+  .opt:active { transform: scale(.97); }
+  .opt:disabled { cursor: default; }
+  .opts.locked .opt:not(.chosen) { opacity: .25; filter: saturate(.3); transform: scale(.97); }
+  .opts.locked .opt.chosen { box-shadow: 0 0 0 3px #fff, 0 0 40px -6px var(--oc); transform: scale(1.02); }
+  .qmsg { text-align: center; color: var(--ink-2); font-weight: 600; min-height: 1.5em; }
+  .qmsg.ok { color: var(--good); }
+
+  /* rešenje */
+  .res { text-align: center; padding: 1.6rem 1.2rem; }
+  .res .big { font-size: 4rem; line-height: 1; margin-bottom: .5rem; }
+  .res h2 { margin: .2rem 0; font-size: 2rem; letter-spacing: -.04em; font-weight: 800; }
+  .res.good h2 { color: var(--good); }
+  .res.bad h2 { color: var(--bad2); }
+  .res.bad { animation: shake .6s both; }
+  .res.good { background: linear-gradient(160deg, rgba(52, 211, 153, .2), rgba(255,255,255,.04)); }
+  .pts { font-size: 3rem; font-weight: 800; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .corr { display: inline-flex; align-items: center; gap: .6rem; margin-top: .9rem; padding: .55rem .9rem .55rem .55rem; border-radius: 14px; background: var(--og); font-weight: 800; color: #fff; text-align: left; }
+  footer { text-align: center; padding: .8rem; font-size: .8rem; color: var(--ink-3); }
+  footer button { border: 0; background: none; color: var(--ink-3); text-decoration: underline; padding: .3rem; }
+</style>
+</head>
+<body class="stage-theme lite">
+<div class="top">
+  <div class="mark"><svg viewBox="0 0 24 24" fill="#0b1030"><rect x="3" y="13" width="4" height="8" rx="1.2"/><rect x="10" y="8" width="4" height="13" rx="1.2"/><rect x="17" y="3" width="4" height="18" rx="1.2"/></svg></div>
+  <div class="title" id="appTitle">DMSS kviz</div>
+  <div class="me" id="meBox" hidden><span class="av emoji" id="meEmoji"></span><span class="nick" id="meNick"></span><span class="score" id="meScore"></span></div>
+</div>
+<div class="offline" id="offline" hidden>Veza sa serverom je prekinuta — ponovo se povezujem…</div>
+
+<main id="main">
+  <div class="stage muted">Učitavanje…</div>
+</main>
+<footer id="foot" hidden><span id="ver"></span> · <button id="logoutBtn" type="button">Odjava sa ovog telefona</button></footer>
+
+<script src="common.js"></script>
+<script src="fx.js"></script>
+<script>
+'use strict';
+let CFG = null, TOKEN = store.get('kviz_token'), ME = null, STATE = null, RECEIVED = 0;
+let myAnswer = null;          // { questionId, choice, correct?, points? }
+let lastMeFetchKey = '';
+let timerRaf = 0;
+let authMode = 'new', authAnimal = null;
+let lastView = '', celebrated = '';
+const main = $('#main');
+mountBackdrop();
+
+async function boot() {
+  CFG = await api('/api/config');
+  $('#appTitle').textContent = CFG.title;
+  document.title = CFG.title;
+  $('#ver').textContent = 'v' + CFG.version;
+  if (TOKEN) {
+    try { await refreshMe(true); } catch (e) { if (e.status === 401) { logout(false); } }
+  }
+  connectStream({
+    onState: (s, at) => { STATE = s; RECEIVED = at; onState(); },
+    onCount: () => {},
+    onStatus: ok => { $('#offline').hidden = ok; },
+  });
+  if (!TOKEN) renderAuth();
+}
+
+function animal(id) { return CFG.animals.find(a => a.id === id) || { emoji: '❔', name: id }; }
+
+async function refreshMe() {
+  if (!TOKEN) return;
+  const data = await api('/api/me', { headers: { 'x-token': TOKEN } });
+  ME = data;
+  const a = animal(data.participant.animal);
+  $('#meEmoji').textContent = a.emoji;
+  $('#meNick').textContent = data.participant.nickname;
+  $('#meScore').textContent = fmtNum(data.total ? data.total.points : 0);
+  $('#meBox').hidden = false;
+  $('#foot').hidden = false;
+  if (data.current && data.current.answer) {
+    myAnswer = { questionId: data.current.questionId, ...data.current.answer };
+  } else if (data.current && (!myAnswer || myAnswer.questionId !== data.current.questionId)) {
+    myAnswer = null;
+  }
+  return data;
+}
+
+function logout(ask = true) {
+  if (ask && !confirm('Odjaviti se sa ovog telefona? Za ponovnu prijavu trebaće vam životinja, nadimak i PIN.')) return;
+  store.del('kviz_token'); TOKEN = null; ME = null; myAnswer = null;
+  $('#meBox').hidden = true; $('#foot').hidden = true;
+  renderAuth();
+}
+$('#logoutBtn').onclick = () => logout(true);
+
+/* ------------------------------------------------------------ prijava */
+function renderAuth(msg) {
+  cancelAnimationFrame(timerRaf);
+  lastView = 'auth';
+  const isNew = authMode === 'new';
+  main.innerHTML = `
+    <div class="hero rise">
+      <span class="eyebrow"><span class="live-dot"></span>${esc(CFG.subtitle || 'Kviz')}</span>
+      <h1>${isNew ? 'Uđi u <span class="grad-text">igru</span>' : 'Dobro <span class="grad-text">došli nazad</span>'}</h1>
+      <p>${isNew ? 'Tri koraka i spremni ste za prvo pitanje.' : 'Prijavite se životinjom, nadimkom i PIN-om.'}</p>
+    </div>
+    <div class="seg rise" role="tablist" style="animation-delay:.06s">
+      <button role="tab" aria-selected="${isNew}" data-mode="new">Nova prijava</button>
+      <button role="tab" aria-selected="${!isNew}" data-mode="login">Već imam nalog</button>
+    </div>
+    <form class="card glass rise" id="authForm" autocomplete="off" novalidate style="animation-delay:.12s">
+      <div class="field">
+        <div class="flabel"><span class="n">1</span>${isNew ? 'Izaberite životinju' : 'Vaša životinja'}</div>
+        <div class="animals">${CFG.animals.map(a => `
+          <button type="button" class="animal" data-animal="${a.id}" aria-pressed="${authAnimal === a.id}">
+            <span class="emoji">${a.emoji}</span><span class="nm">${esc(a.name)}</span></button>`).join('')}
+        </div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="nick"><span class="n">2</span>${isNew ? 'Smislite nadimak' : 'Vaš nadimak'}</label>
+        <input class="inp" id="nick" maxlength="20" placeholder="npr. Marko, Statističar, 77" autocapitalize="words" spellcheck="false">
+        <div class="hint" id="nickHint">${isNew ? '2–20 znakova. Biće prikazan na rang-listi.' : ''}</div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="pin"><span class="n">3</span>${isNew ? 'Smislite PIN od 4 cifre' : 'Vaš PIN'}</label>
+        <input class="inp pin" id="pin" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="••••" autocomplete="off">
+        <div class="hint">${isNew ? 'Zapamtite ga — treba samo ako promenite telefon ili se odjavite.' : 'Zaboravili ste PIN? Obratite se organizatoru.'}</div>
+      </div>
+      <div class="err" id="authErr" ${msg ? '' : 'hidden'}>${esc(msg || '')}</div>
+      <button class="cta" style="margin-top:.8rem" id="authBtn">${isNew ? 'Uđi u kviz →' : 'Prijavi se →'}</button>
+    </form>`;
+  $$('.seg button').forEach(b => b.onclick = () => { authMode = b.dataset.mode; renderAuth(); });
+  $$('.animal').forEach(b => b.onclick = () => {
+    authAnimal = b.dataset.animal;
+    $$('.animal').forEach(x => x.setAttribute('aria-pressed', x === b));
+    if (navigator.vibrate) navigator.vibrate(15);
+    checkNick();
+  });
+  const pin = $('#pin');
+  pin.oninput = () => { pin.value = pin.value.replace(/\D/g, '').slice(0, 4); };
+  let t; $('#nick').oninput = () => { clearTimeout(t); t = setTimeout(checkNick, 350); };
+  $('#authForm').onsubmit = submitAuth;
+}
+
+async function checkNick() {
+  if (authMode !== 'new') return;
+  const hint = $('#nickHint'); if (!hint) return;
+  const nick = $('#nick').value.trim();
+  if (!authAnimal || nick.length < 2) { hint.className = 'hint'; hint.textContent = '2–20 znakova. Biće prikazan na rang-listi.'; return; }
+  try {
+    const r = await api(`/api/check?animal=${encodeURIComponent(authAnimal)}&nickname=${encodeURIComponent(nick)}`);
+    hint.className = 'hint ' + (r.taken ? 'bad' : 'ok');
+    hint.textContent = r.taken ? `${animal(authAnimal).emoji} ${nick} je zauzeto — izaberite drugi nadimak ili životinju.` : `${animal(authAnimal).emoji} ${nick} je slobodno ✓`;
+  } catch { /* ignoriši */ }
+}
+
+async function submitAuth(ev) {
+  ev.preventDefault();
+  const err = $('#authErr'); err.hidden = true;
+  const nickname = $('#nick').value.trim(), pin = $('#pin').value;
+  const show = m => { err.textContent = m; err.hidden = false; err.classList.remove('rise'); void err.offsetWidth; err.style.animation = 'shake .5s'; };
+  if (!authAnimal) return show('Izaberite životinju.');
+  if (nickname.length < 2) return show('Unesite nadimak (najmanje 2 znaka).');
+  if (!/^\d{4}$/.test(pin)) return show('PIN mora imati tačno 4 cifre.');
+  const btn = $('#authBtn'); btn.disabled = true;
+  try {
+    const r = await api(authMode === 'new' ? '/api/register' : '/api/login', { method: 'POST', body: { animal: authAnimal, nickname, pin } });
+    TOKEN = r.token; store.set('kviz_token', TOKEN);
+    await refreshMe();
+    lastView = '';
+    renderGame();
+    Confetti.burst({ y: innerHeight * .3, count: 90 });
+  } catch (e) {
+    show(e.message); btn.disabled = false;
+  }
+}
+
+/* ------------------------------------------------------------ igra */
+function onState() {
+  if (!TOKEN || !ME) return;
+  const s = STATE;
+  const qid = s.question ? s.question.id : 0;
+  const needMe = ['reveal', 'board', 'animals', 'stats', 'lobby', 'idle'].includes(s.phase);
+  if (myAnswer && myAnswer.questionId !== qid && s.phase === 'question') myAnswer = null;
+  renderGame();
+  const key = `${s.seq}`;
+  if (needMe && key !== lastMeFetchKey) {
+    lastMeFetchKey = key;
+    // raspoređeno, da 300 telefona ne udari istovremeno
+    setTimeout(() => refreshMe().then(() => renderGame(true)).catch(e => { if (e.status === 401) logout(false); }), Math.random() * 1200);
+  }
+}
+
+function myStatsHtml() {
+  const ses = ME && ME.session, tot = ME && ME.total;
+  const cell = (v, l, d) => `<div class="glass rise" style="animation-delay:${d}s"><div class="v">${v}</div><div class="l">${l}</div></div>`;
+  return `<div class="mystats">
+    ${cell(ses ? `${ses.rank}.` : '–', ses ? `mesto u sesiji · od ${ses.of}` : 'mesto u sesiji', .1)}
+    ${cell(tot ? `${tot.rank}.` : '–', tot ? `mesto ukupno · od ${tot.of}` : 'mesto ukupno', .16)}
+    ${cell(fmtNum(tot ? tot.points : 0), 'bodova ukupno', .22)}
+    ${cell(tot ? `${tot.correct}/${tot.answered}` : '0/0', 'tačnih odgovora', .28)}
+  </div>`;
+}
+
+/** Iscrtava ekran; isti prikaz se ne crta ponovo (zbog animacija), osim kad stignu novi lični podaci. */
+function renderGame(meUpdated) {
+  if (!STATE || !ME) return;
+  const s = STATE, a = animal(ME.participant.animal);
+  const view = `${s.phase}:${s.seq}:${s.question ? s.question.id : ''}`;
+  if (view === lastView && !meUpdated) return;
+  if (s.phase === 'question' && view === lastView) return; // ne prekidaj pitanje u toku
+  const firstPaint = view !== lastView;
+  lastView = view;
+  cancelAnimationFrame(timerRaf);
+  if (ME.disabled) {
+    main.innerHTML = `<div class="glass stage"><div style="font-size:3rem">⛔</div><h2>Nalog je deaktiviran</h2><p>Obratite se organizatoru.</p></div>`;
+    return;
+  }
+  const avatar = `<div class="avatar"><span class="rg"></span><span class="rg"></span><span class="e emoji">${a.emoji}</span></div>`;
+  switch (s.phase) {
+    case 'idle':
+      main.innerHTML = `<div class="glass stage ${firstPaint ? 'rise' : ''}">${avatar}
+        <h2>Spremni ste, <span class="grad-text">${esc(ME.participant.nickname)}</span>!</h2>
+        <p>Kad voditelj pokrene pitanje, pojaviće se ovde — ne morate ništa da osvežavate.</p></div>
+        ${ME.total ? myStatsHtml() : ''}`;
+      break;
+    case 'lobby':
+      main.innerHTML = `<div class="glass stage ${firstPaint ? 'rise' : ''}">${avatar}
+        <span class="eyebrow"><span class="live-dot"></span>${s.session ? esc(s.session.name) : ''}</span>
+        <h2 style="margin-top:.9rem">Prvo pitanje stiže <span class="grad-text">uskoro</span></h2>
+        <p>Pratite veliki ekran. Brži tačan odgovor donosi više bodova.</p></div>
+        ${ME.total ? myStatsHtml() : ''}`;
+      break;
+    case 'question':
+    case 'closed':
+      renderQuestion();
+      break;
+    case 'reveal':
+      renderReveal(firstPaint);
+      break;
+    case 'board':
+    case 'animals':
+    case 'stats': {
+      const title = { board: 'Rang-lista', animals: 'Takmičenje životinja', stats: 'Statistika' }[s.phase];
+      let extra = '';
+      if (s.phase === 'animals' && s.animals) {
+        const r = s.animals.rows.find(x => x.animal === ME.participant.animal);
+        if (r) extra = `<p style="font-size:1.05rem;margin-top:.8rem"><span class="emoji">${a.emoji}</span> <b>${esc(a.name)}</b> je na <b class="grad-text" style="font-size:1.3rem">${r.rank}.</b> mestu</p>`;
+      }
+      main.innerHTML = `<div class="glass stage ${firstPaint ? 'rise' : ''}"><div style="font-size:3.2rem" class="pop">📺</div>
+        <h2>${title}${s.scope === 'all' ? ' — ukupno' : ''}</h2><p>Pogledajte veliki ekran.</p>${extra}</div>${myStatsHtml()}`;
+      break;
+    }
+  }
+}
+
+function renderQuestion() {
+  const s = STATE, q = s.question;
+  if (!q) return;
+  const answered = myAnswer && myAnswer.questionId === q.id;
+  const closed = s.phase === 'closed';
+  const remaining = makeDeadline(q.remainingMs, RECEIVED);
+  main.innerHTML = `
+    <div class="qhead"><span class="eyebrow">Pitanje ${q.index} / ${q.total}</span>
+      <div class="mring" id="mring">${ringSvg('mr')}<div class="n" id="tleft"></div></div></div>
+    <div class="qtext">${esc(q.text)}</div>
+    <div class="opts ${answered || closed ? 'locked' : ''}">
+      ${q.options.map((o, i) => `<button class="opt fx-${'abcd'[i]} ${answered && myAnswer.choice === i ? 'chosen' : ''}" data-i="${i}" style="animation-delay:${.05 + i * .06}s" ${answered || closed ? 'disabled' : ''}>
+        <span class="badge">${shapeHtml(i)}</span><span class="letter">${LETTERS[i]}</span><span>${esc(o)}</span></button>`).join('')}
+    </div>
+    <div class="qmsg ${answered ? 'ok' : ''}" id="qmsg">${answered ? '✓ Odgovor je primljen — sačekajte rešenje' : closed ? '⏱ Vreme je isteklo' : ''}</div>`;
+  $$('.opt').forEach(b => b.onclick = () => sendAnswer(q.id, Number(b.dataset.i)));
+  const arc = $('#mring .arc'), C = Number(arc.dataset.c), tl = $('#tleft'), ring = $('#mring');
+  const total = q.timeLimit * 1000;
+  const tick = () => {
+    const r = closed ? 0 : remaining();
+    arc.style.strokeDashoffset = C * (1 - r / total);
+    tl.textContent = Math.ceil(r / 1000);
+    ring.classList.toggle('low', r < 5000);
+    if (r <= 0 && !closed && !(myAnswer && myAnswer.questionId === q.id)) {
+      $$('.opt').forEach(b => b.disabled = true);
+      $('.opts').classList.add('locked');
+      $('#qmsg').textContent = '⏱ Vreme je isteklo';
+      return;
+    }
+    if (r > 0) timerRaf = requestAnimationFrame(tick);
+  };
+  tick();
+}
+
+async function sendAnswer(qid, choice) {
+  if (myAnswer && myAnswer.questionId === qid) return;
+  myAnswer = { questionId: qid, choice, pending: true };
+  $$('.opt').forEach(b => { b.disabled = true; b.classList.toggle('chosen', Number(b.dataset.i) === choice); });
+  $('.opts').classList.add('locked');
+  const m = $('#qmsg'); m.className = 'qmsg'; m.textContent = 'Šaljem…';
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      await api('/api/answer', { method: 'POST', headers: { 'x-token': TOKEN }, body: { questionId: qid, choice } });
+      myAnswer.pending = false;
+      const mm = $('#qmsg'); if (mm) { mm.className = 'qmsg ok'; mm.textContent = '✓ Odgovor je primljen — sačekajte rešenje'; }
+      if (navigator.vibrate) navigator.vibrate(40);
+      return;
+    } catch (e) {
+      if (e.data && e.data.code === 'already') { await refreshMe(); lastView = ''; renderGame(); return; }
+      if (e.status && e.status !== 0) { myAnswer = null; const mm = $('#qmsg'); if (mm) mm.textContent = e.message; return; }
+      await new Promise(r => setTimeout(r, 600));
+    }
+  }
+  myAnswer = null;
+  lastView = ''; renderGame();
+  const mm = $('#qmsg'); if (mm) mm.textContent = 'Odgovor nije poslat — slaba veza. Pokušajte ponovo.';
+}
+
+function renderReveal() {
+  const s = STATE, q = s.question;
+  const mine = myAnswer && myAnswer.questionId === q.id ? myAnswer : null;
+  let head, cls = '';
+  if (!mine) head = `<div class="big pop">🤷</div><h2>Niste odgovorili</h2><p class="muted">Sledeći put brže!</p>`;
+  else if (mine.correct === undefined) head = `<div class="big">⏳</div><h2>Proveravam…</h2>`;
+  else if (mine.correct) { cls = 'good'; head = `<div class="big pop">🎉</div><h2>Tačno!</h2><div class="pts grad-text">+<span data-count="${mine.points}" data-delay="250">0</span></div><p class="muted">Vreme odgovora: ${fmtDec(mine.ms / 1000)} s</p>`; }
+  else { cls = 'bad'; head = `<div class="big pop">😕</div><h2>Netačno</h2><p class="muted">Vaš odgovor: ${LETTERS[mine.choice]}</p>`; }
+  main.innerHTML = `<div class="glass res ${cls}">${head}
+      <div class="corr fx-${'abcd'[q.correct]}"><span class="badge">${shapeHtml(q.correct)}</span><span>Tačan odgovor: ${esc(q.options[q.correct])}</span></div></div>
+      ${myStatsHtml()}`;
+  countAll(main);
+  const key = `${s.seq}`;
+  if (mine && mine.correct && celebrated !== key) { celebrated = key; setTimeout(() => Confetti.burst({ y: innerHeight * .28, count: 130, power: 15 }), 200); if (navigator.vibrate) navigator.vibrate([40, 60, 40]); }
+}
+
+boot().catch(e => { main.innerHTML = `<div class="glass stage"><div style="font-size:3rem">⚠️</div><h2>Server nije dostupan</h2><p>${esc(e.message)}</p><button class="cta" onclick="location.reload()">Pokušaj ponovo</button></div>`; });
+</script>
+</body>
+</html>

@@ -1,0 +1,199 @@
+{
+  "_napomena": "PREDLOG pitanja po temama iz nacrta agende (Zlatibor, 24-27. 11. 2026). Kviz traje ~10 minuta u okviru polusatnog termina: 8 pitanja po danu. Pitanja treba da provere i po potrebi zamene autori iz sektora. 'correct' je slovo tačnog odgovora (A-D), 'timeLimit' u sekundama. Polje '_tema' je samo podsetnik (aplikacija ga ne prikazuje).",
+  "sessions": [
+    {
+      "name": "Dan 2: Područna odeljenja, društvene statistike i registri",
+      "questions": [
+        {
+          "_tema": "PO: prikupljanje podataka na terenu (tačke 8-10)",
+          "text": "Kako se zove anketiranje licem u lice u kome anketar odgovore unosi direktno u tablet ili laptop?",
+          "options": [
+            "CATI",
+            "CAWI",
+            "CAPI",
+            "PAPI"
+          ],
+          "correct": "C",
+          "timeLimit": 15
+        },
+        {
+          "_tema": "PO: put podatka kroz statistički sistem (tačka 9)",
+          "text": "Koji međunarodni model opisuje put podatka od utvrđivanja potreba, preko prikupljanja i obrade, do objavljivanja i evaluacije?",
+          "options": [
+            "GSBPM",
+            "SDMX",
+            "NACE",
+            "ISCED"
+          ],
+          "correct": "A"
+        },
+        {
+          "_tema": "Popis i geoprostorni podaci (tačke 15-16)",
+          "text": "Najmanja teritorijalna jedinica na koju se deli teritorija za potrebe sprovođenja popisa je:",
+          "options": [
+            "Opština",
+            "Naselje",
+            "Popisni krug",
+            "Katastarska opština"
+          ],
+          "correct": "C"
+        },
+        {
+          "_tema": "Popis: od podatka do slike društva (tačka 15)",
+          "text": "Kako su prikupljani podaci u Popisu stanovništva, domaćinstava i stanova 2022?",
+          "options": [
+            "Na papirnim upitnicima",
+            "Na laptopovima (CAPI)",
+            "Samo preko interneta",
+            "Samo iz registara"
+          ],
+          "correct": "B"
+        },
+        {
+          "_tema": "Demografski puls: vitalni događaji i migracije (tačka 16)",
+          "text": "Prirodni priraštaj je razlika između:",
+          "options": [
+            "Broja doseljenih i odseljenih",
+            "Broja živorođenih i umrlih",
+            "Broja sklopljenih i razvedenih brakova",
+            "Broja stanovnika u dva popisa"
+          ],
+          "correct": "B",
+          "timeLimit": 15
+        },
+        {
+          "_tema": "Tržište rada kroz anketu i administrativne izvore (tačka 17)",
+          "text": "Stopa nezaposlenosti računa se kao udeo nezaposlenih u:",
+          "options": [
+            "Ukupnom stanovništvu",
+            "Broju zaposlenih",
+            "Stanovništvu starom 15–64",
+            "Radnoj snazi"
+          ],
+          "correct": "D"
+        },
+        {
+          "_tema": "Ciljevi održivog razvoja (tačka 17)",
+          "text": "Koliko ciljeva održivog razvoja (SDG) sadrži Agenda 2030 Ujedinjenih nacija?",
+          "options": [
+            "8",
+            "12",
+            "17",
+            "21"
+          ],
+          "correct": "C",
+          "timeLimit": 15
+        },
+        {
+          "_tema": "Registri i administrativni izvori (tačka 13)",
+          "text": "Šta je administrativni izvor podataka?",
+          "options": [
+            "Evidencija koju drugi organ vodi za svoje potrebe",
+            "Anketa koju RZS sprovodi na terenu",
+            "Slučajni uzorak domaćinstava",
+            "Procena stručnjaka Zavoda"
+          ],
+          "correct": "A"
+        }
+      ]
+    },
+    {
+      "name": "Dan 3: Poslovne statistike i nacionalni računi",
+      "questions": [
+        {
+          "_tema": "Statistički poslovni registar (tačka 21)",
+          "text": "Iz kog administrativnog izvora Statistički poslovni registar preuzima podatke o registrovanim privrednim društvima i preduzetnicima?",
+          "options": [
+            "Agencija za privredne registre (APR)",
+            "Republički fond za zdravstveno osiguranje",
+            "Narodna banka Srbije",
+            "Republički geodetski zavod"
+          ],
+          "correct": "A"
+        },
+        {
+          "_tema": "Kratkoročni poslovni pokazatelji - STS (tačka 23)",
+          "text": "Kratkoročne poslovne statistike (STS), kao što je indeks industrijske proizvodnje, objavljuju se:",
+          "options": [
+            "Samo godišnje",
+            "Jednom u deset godina",
+            "Mesečno ili kvartalno",
+            "Samo u popisnoj godini"
+          ],
+          "correct": "C",
+          "timeLimit": 15
+        },
+        {
+          "_tema": "SBS i IKT statistika (tačka 24)",
+          "text": "Istraživanje o upotrebi informaciono-komunikacionih tehnologija (IKT) u preduzećima prati, između ostalog:",
+          "options": [
+            "Broj noćenja turista",
+            "Korišćenje interneta i e-trgovine",
+            "Proizvodnju električne energije",
+            "Broj živorođenih"
+          ],
+          "correct": "B",
+          "timeLimit": 15
+        },
+        {
+          "_tema": "Turizam kroz brojke (tačka 25)",
+          "text": "U jednom mesecu ostvareno je 3.000 dolazaka i 9.000 noćenja turista. Kolika je prosečna dužina boravka?",
+          "options": [
+            "3 noći",
+            "6 noći",
+            "0,33 noći",
+            "12 noći"
+          ],
+          "correct": "A"
+        },
+        {
+          "_tema": "Statistika saobraćaja (tačka 26)",
+          "text": "Jedinica „putnički kilometar” predstavlja:",
+          "options": [
+            "Jedno vozilo na jednom kilometru",
+            "Jedan kilometar puta po putniku",
+            "Prosečnu vožnju jednog putnika",
+            "Jedan putnik prevezen na jedan kilometar"
+          ],
+          "correct": "D",
+          "timeLimit": 15
+        },
+        {
+          "_tema": "Energetska statistika (tačka 27)",
+          "text": "Koji od navedenih izvora energije je obnovljiv?",
+          "options": [
+            "Lignit",
+            "Energija vetra",
+            "Prirodni gas",
+            "Nafta"
+          ],
+          "correct": "B",
+          "timeLimit": 15
+        },
+        {
+          "_tema": "Poljoprivreda (tačka 29)",
+          "text": "Nakon popisa iz 2012, sledeći Popis poljoprivrede u Srbiji sproveden je:",
+          "options": [
+            "2018.",
+            "2021.",
+            "2023.",
+            "2025."
+          ],
+          "correct": "C",
+          "timeLimit": 15
+        },
+        {
+          "_tema": "Nacionalni računi za početnike (tačka 31)",
+          "text": "Po rashodnom pristupu, bruto domaći proizvod (BDP) jednak je:",
+          "options": [
+            "Proizvodnja + uvoz − izvoz",
+            "Potrošnja + investicije + izvoz + uvoz",
+            "Plate + investicije − porezi",
+            "Potrošnja + investicije + izvoz − uvoz"
+          ],
+          "correct": "D"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+/* lokalni font (bez interneta) — Plus Jakarta Sans, OFL licenca */
+@font-face { font-family: "Jakarta"; font-style: normal; font-display: swap; font-weight: 200 800;
+  src: url(vendor/fonts/plus-jakarta-sans-latin-ext-wght-normal.woff2) format("woff2");
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF; }
+@font-face { font-family: "Jakarta"; font-style: normal; font-display: swap; font-weight: 200 800;
+  src: url(vendor/fonts/plus-jakarta-sans-latin-wght-normal.woff2) format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD; }
+/* DMSS kviz — zajednički stilovi */
+:root {
+  --bg: #f3f5f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f6;
+  --text: #14213d;
+  --muted: #5b6475;
+  --line: #d9dee8;
+  --brand: #0b4f8a;
+  --brand-2: #1570c4;
+  --ok: #1a8f4c;
+  --bad: #c62f2f;
+  --warn: #b7791f;
+  --a: #d63b3b;   /* A — crvena, trougao */
+  --b: #1f6fd1;   /* B — plava, romb */
+  --c: #c98a00;   /* C — žuta, krug */
+  --d: #24944f;   /* D — zelena, kvadrat */
+  --radius: 14px;
+  --shadow: 0 1px 2px rgba(20, 33, 61, .06), 0 4px 16px rgba(20, 33, 61, .07);
+  --font: "Jakarta", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Ubuntu, Arial, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--font); line-height: 1.4; word-spacing: .05em; -webkit-text-size-adjust: 100%; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+[hidden] { display: none !important; }
+.muted { color: var(--muted); }
+.small { font-size: .875rem; }
+.center { text-align: center; }
+.row { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.grow { flex: 1; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+.btn {
+  text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center; gap: .4rem;
+  border: 1px solid var(--line); background: var(--surface); border-radius: 10px;
+  padding: .6rem 1rem; font-weight: 600; min-height: 44px; transition: background .15s, border-color .15s, transform .05s;
+}
+.btn:hover { border-color: var(--brand-2); }
+.btn:active { transform: translateY(1px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+.btn.primary:hover { background: var(--brand-2); }
+.btn.danger { color: var(--bad); border-color: #efc4c4; }
+.btn.danger.solid { background: var(--bad); color: #fff; border-color: var(--bad); }
+.btn.ghost { background: transparent; border-color: transparent; }
+.btn.block { width: 100%; }
+.btn.suggest { box-shadow: 0 0 0 3px #f2b84b; }
+
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 1.1rem; }
+.field { display: grid; gap: .35rem; margin-bottom: .9rem; }
+.field label { font-weight: 600; font-size: .95rem; }
+.input {
+  width: 100%; border: 1.5px solid var(--line); border-radius: 10px; padding: .7rem .8rem; background: #fff; min-height: 48px;
+}
+.input:focus { outline: none; border-color: var(--brand-2); box-shadow: 0 0 0 3px rgba(21, 112, 196, .15); }
+.hint { font-size: .85rem; color: var(--muted); }
+.hint.ok { color: var(--ok); }
+.hint.bad { color: var(--bad); }
+.error-box { background: #fdecec; color: #8e1f1f; border-radius: 10px; padding: .6rem .8rem; font-size: .92rem; }
+
+/* odgovori A-D */
+.opt-a { --opt: var(--a); } .opt-b { --opt: var(--b); } .opt-c { --opt: var(--c); } .opt-d { --opt: var(--d); }
+.shape { display: inline-block; width: 1em; height: 1em; background: currentColor; flex: none; }
+.shape-a { clip-path: polygon(50% 6%, 96% 92%, 4% 92%); }
+.shape-b { clip-path: polygon(50% 2%, 98% 50%, 50% 98%, 2% 50%); }
+.shape-c { border-radius: 50%; transform: scale(.88); }
+.shape-d { transform: scale(.8); }
+
+.pill { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .6rem; border-radius: 999px; background: var(--surface-2); font-size: .85rem; font-weight: 600; }
+.pill.live { background: #e6f4ec; color: var(--ok); }
+.pill.live::before { content: ""; width: .5rem; height: .5rem; border-radius: 50%; background: currentColor; animation: blink 1.2s infinite; }
+@keyframes blink { 50% { opacity: .25; } }
+
+.emoji { font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif; line-height: 1; }

@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DMSS kviz — voditelj</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  .top { background: var(--brand); color: #fff; padding: .6rem 1.2rem; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .top .t { font-weight: 800; font-size: 1.1rem; }
+  .top nav { display: flex; gap: .25rem; flex-wrap: wrap; }
+  .top nav button { background: transparent; border: 0; color: rgba(255,255,255,.8); padding: .45rem .8rem; border-radius: 8px; font-weight: 600; }
+  .top nav button[aria-selected="true"] { background: rgba(255,255,255,.18); color: #fff; }
+  .top .sp { flex: 1; }
+  .wrap { max-width: 1400px; margin: 0 auto; padding: 1rem; }
+  .cols { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+  @media (max-width: 980px) { .cols { grid-template-columns: 1fr; } }
+  h2 { font-size: 1.1rem; margin: 0 0 .8rem; }
+  h3 { font-size: 1rem; margin: 1rem 0 .5rem; }
+  .status { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; margin-bottom: 1rem; }
+  .status .card { padding: .7rem .8rem; }
+  .status .v { font-size: 1.35rem; font-weight: 800; }
+  .status .l { font-size: .78rem; color: var(--muted); }
+  .ctrl { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+  .ctrl .btn { min-height: 52px; }
+  .ctrl .wide { grid-column: span 3; min-height: 60px; font-size: 1.1rem; }
+  .sec-label { font-size: .78rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin: 1rem 0 .4rem; }
+  .preview { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: #0c1f3a; }
+  .preview iframe { position: absolute; top: 0; left: 0; width: 1600px; height: 900px; border: 0; transform-origin: 0 0; pointer-events: none; }
+  table { width: 100%; border-collapse: collapse; font-size: .92rem; }
+  th, td { padding: .5rem .5rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { font-size: .78rem; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.current td { background: #fff8e6; }
+  .qitem { border: 1px solid var(--line); border-radius: 10px; padding: .7rem .8rem; margin-bottom: .5rem; background: #fff; }
+  .qitem .qt { font-weight: 600; }
+  .qitem ol { margin: .4rem 0 0; padding-left: 1.4rem; font-size: .9rem; }
+  .qitem li.ok { color: var(--ok); font-weight: 700; }
+  .qitem .acts { display: flex; gap: .3rem; flex-wrap: wrap; margin-top: .5rem; }
+  .qitem .acts .btn { min-height: 34px; padding: .3rem .7rem; font-size: .85rem; }
+  .session-block { margin-bottom: 1.4rem; }
+  .session-head { display: flex; align-items: center; gap: .5rem; margin-bottom: .6rem; }
+  .session-head h3 { margin: 0; flex: 1; }
+  dialog { border: 0; border-radius: 14px; padding: 0; width: min(640px, 94vw); box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+  dialog::backdrop { background: rgba(20,33,61,.45); }
+  dialog form { padding: 1.2rem; }
+  .optrow { display: grid; grid-template-columns: auto 1fr; gap: .5rem; align-items: center; margin-bottom: .45rem; }
+  .optrow label { display: flex; align-items: center; gap: .3rem; font-weight: 700; }
+  .toast { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); background: var(--text); color: #fff; padding: .7rem 1.1rem; border-radius: 10px; z-index: 50; max-width: 90vw; }
+  .toast.err { background: var(--bad); }
+  .login { max-width: 380px; margin: 12vh auto; }
+  .mini-q { font-size: .9rem; }
+  .mini-q td:first-child { width: 2rem; color: var(--muted); }
+  .warnbox { background: #fff4d6; color: #7a5200; border-radius: 10px; padding: .6rem .8rem; font-size: .9rem; margin-bottom: .8rem; }
+  code { background: var(--surface-2); padding: .1rem .35rem; border-radius: 5px; }
+</style>
+</head>
+<body>
+<div id="loginView" class="login card">
+  <h2>DMSS kviz — voditelj</h2>
+  <form id="loginForm">
+    <div class="field"><label for="pw">Administratorska lozinka</label><input class="input" type="password" id="pw" autocomplete="current-password"></div>
+    <div class="error-box" id="loginErr" hidden></div>
+    <button class="btn primary block">Prijava</button>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <div class="top">
+    <span class="t">DMSS kviz · voditelj</span>
+    <nav role="tablist">
+      <button data-tab="live" aria-selected="true">Upravljanje</button>
+      <button data-tab="questions">Pitanja</button>
+      <button data-tab="people">Učesnici</button>
+      <button data-tab="stats">Statistika</button>
+      <button data-tab="data">Podaci</button>
+    </nav>
+    <span class="sp"></span>
+    <a href="/ekran" target="_blank" class="btn" style="min-height:36px;padding:.3rem .8rem">Otvori veliki ekran ↗</a>
+    <span class="small" id="verLbl" style="opacity:.8"></span>
+  </div>
+
+  <div class="wrap">
+    <!-- UPRAVLJANJE -->
+    <section data-pane="live">
+      <div id="lanWarn"></div>
+      <div class="status">
+        <div class="card"><div class="v" id="stPhase">–</div><div class="l">faza</div></div>
+        <div class="card"><div class="v tabular" id="stAnswered">–</div><div class="l">odgovora / prijavljenih</div></div>
+        <div class="card"><div class="v tabular" id="stConnected">–</div><div class="l">povezanih uređaja</div></div>
+        <div class="card"><div class="v tabular" id="stTimer">–</div><div class="l">preostalo vreme</div></div>
+      </div>
+      <div class="cols">
+        <div class="card">
+          <h2>Tok sesije</h2>
+          <div class="row" style="margin-bottom:.6rem">
+            <select class="input grow" id="sessSel" style="min-height:44px"></select>
+            <button class="btn primary" id="openBtn">Otvori sesiju</button>
+          </div>
+          <div class="ctrl">
+            <button class="btn primary wide" id="nextBtn" data-act="startQuestion">▶ Sledeće pitanje</button>
+            <button class="btn" data-act="closeQuestion">⏹ Zatvori pitanje</button>
+            <button class="btn" data-act="reveal">✓ Prikaži rešenje</button>
+            <button class="btn danger" data-act="endSession">Završi sesiju</button>
+          </div>
+          <div class="sec-label">Prikaži na velikom ekranu — ova sesija</div>
+          <div class="ctrl">
+            <button class="btn" data-act="board" data-scope="session">🏆 Rang-lista</button>
+            <button class="btn" data-act="animals" data-scope="session">🦁 Životinje</button>
+            <button class="btn" data-act="stats" data-scope="session">📊 Statistika</button>
+          </div>
+          <div class="sec-label">Prikaži na velikom ekranu — ukupno (sve sesije)</div>
+          <div class="ctrl">
+            <button class="btn" data-act="board" data-scope="all">🏆 Rang-lista</button>
+            <button class="btn" data-act="animals" data-scope="all">🦁 Životinje</button>
+            <button class="btn" data-act="stats" data-scope="all">📊 Statistika</button>
+          </div>
+          <div class="sec-label">Ostalo</div>
+          <div class="ctrl"><button class="btn" data-act="idle">🏠 Početni ekran (QR kod)</button></div>
+          <div class="sec-label">Pitanja u sesiji</div>
+          <table class="mini-q" id="miniQ"></table>
+        </div>
+        <div class="card">
+          <h2>Pregled velikog ekrana</h2>
+          <div class="preview" id="preview"><iframe src="/ekran" title="Pregled velikog ekrana" tabindex="-1"></iframe></div>
+          <p class="small muted" style="margin:.7rem 0 0">Učesnici se prijavljuju na: <b id="joinLbl"></b></p>
+          <p class="small muted" id="nextHint" style="margin:.3rem 0 0"></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PITANJA -->
+    <section data-pane="questions" hidden>
+      <div class="card">
+        <div class="row" style="margin-bottom:1rem">
+          <h2 class="grow" style="margin:0">Sesije i pitanja</h2>
+          <button class="btn" id="addSessBtn">+ Nova sesija</button>
+          <a class="btn" id="expQ" href="#">Izvezi pitanja (JSON)</a>
+          <label class="btn">Uvezi pitanja (JSON)<input type="file" id="impQ" accept=".json,application/json" hidden></label>
+        </div>
+        <p class="small muted" style="margin-top:0">Uvoz zamenjuje <b>sva</b> pitanja i briše sve odgovore. Format je isti kao <code>questions.json</code>.</p>
+        <div id="qList"></div>
+      </div>
+    </section>
+
+    <!-- UČESNICI -->
+    <section data-pane="people" hidden>
+      <div class="card">
+        <div class="row" style="margin-bottom:.8rem">
+          <h2 class="grow" style="margin:0">Učesnici</h2>
+          <input class="input" id="pSearch" placeholder="Pretraga po nadimku…" style="max-width:280px">
+        </div>
+        <p class="small muted" style="margin-top:0">Ako učesnik zaboravi PIN: pronađite ga ovde i postavite novi PIN. Neprimeren nadimak možete preimenovati ili nalog deaktivirati (ne pojavljuje se na rang-listama).</p>
+        <table id="pTable"></table>
+      </div>
+    </section>
+
+    <!-- STATISTIKA -->
+    <section data-pane="stats" hidden>
+      <div class="card">
+        <div class="row" style="margin-bottom:.8rem">
+          <h2 class="grow" style="margin:0">Statistika</h2>
+          <select class="input" id="statSel" style="max-width:300px;min-height:44px"></select>
+          <a class="btn" id="expA" href="#">Odgovori (CSV)</a>
+          <a class="btn" id="expR" href="#">Ukupna rang-lista (CSV)</a>
+        </div>
+        <div id="statBody"></div>
+      </div>
+    </section>
+
+    <!-- PODACI -->
+    <section data-pane="data" hidden>
+      <div class="cols">
+        <div class="card">
+          <h2>Adrese</h2>
+          <p class="small">Adresa u QR kodu: <b id="joinLbl2"></b></p>
+          <p class="small muted">Adrese ovog računara u mreži:</p>
+          <ul class="small" id="lanList"></ul>
+          <p class="small muted">Ako QR kod pokazuje pogrešnu adresu, upišite tačnu u <code>publicUrl</code> u fajlu <code>config.json</code> i ponovo pokrenite server.</p>
+        </div>
+        <div class="card">
+          <h2>Brisanje podataka (posle probe)</h2>
+          <p class="small">Za ponovnu probu ili pred početak konferencije. Radnja je nepovratna — preporuka je da prvo izvezete CSV.</p>
+          <div class="row">
+            <button class="btn danger" id="resetAns">Obriši sve odgovore</button>
+            <button class="btn danger solid" id="resetAll">Obriši odgovore i učesnike</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<dialog id="qDlg">
+  <form method="dialog" id="qForm">
+    <h2 id="qDlgTitle">Pitanje</h2>
+    <div class="field"><label for="qText">Tekst pitanja</label><textarea class="input" id="qText" rows="3" required></textarea></div>
+    <div class="field"><label>Ponuđeni odgovori (označite tačan)</label>
+      <div id="qOpts"></div>
+      <div class="hint">Najmanje 2, najviše 4 odgovora. Prazna polja se ne prikazuju.</div>
+    </div>
+    <div class="field" style="max-width:220px"><label for="qTime">Vreme za odgovor (sekunde)</label><input class="input" type="number" id="qTime" min="5" max="120"></div>
+    <div class="error-box" id="qErr" hidden></div>
+    <div class="row" style="justify-content:flex-end;margin-top:.8rem">
+      <button class="btn" value="cancel" formnovalidate>Odustani</button>
+      <button class="btn primary" id="qSave" value="save">Sačuvaj</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="common.js"></script>
+<script>
+'use strict';
+let KEY = sessionStorage.getItem('kviz_admin') || '';
+let DATA = null, STATE = null, RECEIVED = 0, tab = 'live', editing = null, raf = 0;
+const PHASES = { idle: 'Početni ekran', lobby: 'Sesija otvorena', question: 'Pitanje u toku', closed: 'Vreme isteklo', reveal: 'Rešenje', board: 'Rang-lista', animals: 'Životinje', stats: 'Statistika' };
+
+function adm(path, opts = {}) { return api(path, { ...opts, headers: { 'x-admin-key': KEY, ...(opts.headers || {}) } }); }
+function toast(msg, err) {
+  const t = document.createElement('div'); t.className = 'toast' + (err ? ' err' : ''); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), err ? 5000 : 2200);
+}
+async function download(path, fallbackName) {
+  try {
+    const res = await fetch(path, { headers: { 'x-admin-key': KEY } });
+    if (!res.ok) throw new Error('Greška pri izvozu');
+    const cd = res.headers.get('Content-Disposition') || '';
+    const name = (cd.match(/filename="([^"]+)"/) || [])[1] || fallbackName;
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (e) { toast(e.message, true); }
+}
+
+/* ---------------- prijava */
+$('#loginForm').onsubmit = async e => {
+  e.preventDefault();
+  KEY = $('#pw').value;
+  try { await adm('/api/admin/ping'); sessionStorage.setItem('kviz_admin', KEY); start(); }
+  catch (err) { $('#loginErr').textContent = err.message; $('#loginErr').hidden = false; }
+};
+(async () => { if (KEY) { try { await adm('/api/admin/ping'); start(); } catch { KEY = ''; } } })();
+
+let started = false;
+function start() {
+  if (started) return; started = true;
+  $('#loginView').hidden = true; $('#app').hidden = false;
+  $$('.top nav button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
+  connectStream({ onState: (s, at) => { STATE = s; RECEIVED = at; renderLive(); }, onCount: c => { if (STATE) { STATE.answered = c.answered; renderStatus(); } } });
+  loadData();
+  setInterval(() => { if (tab === 'live') loadData(); }, 3000);
+  fitPreview(); window.addEventListener('resize', fitPreview);
+}
+function fitPreview() {
+  const box = $('#preview'); if (!box) return;
+  $('#preview iframe').style.transform = `scale(${box.clientWidth / 1600})`;
+}
+function setTab(t) {
+  tab = t;
+  $$('.top nav button').forEach(b => b.setAttribute('aria-selected', b.dataset.tab === t));
+  $$('section[data-pane]').forEach(s => s.hidden = s.dataset.pane !== t);
+  if (t === 'live') fitPreview();
+  if (t === 'questions') loadData().then(renderQuestions);
+  if (t === 'people') loadPeople();
+  if (t === 'stats') { fillStatSel(); loadStats(); }
+  if (t === 'data') loadData().then(renderDataTab);
+}
+
+async function loadData() {
+  try { DATA = await adm('/api/admin/data'); } catch (e) { if (e.status === 401) { sessionStorage.removeItem('kviz_admin'); location.reload(); } return; }
+  $('#verLbl').textContent = 'v' + DATA.version;
+  $('#joinLbl').textContent = DATA.joinUrl;
+  const sel = $('#sessSel'), cur = sel.value;
+  sel.innerHTML = DATA.sessions.map(s => `<option value="${s.id}">${esc(s.name)}${s.status === 'done' ? ' ✓' : ''} (${s.questions.length} pit.)</option>`).join('');
+  if (DATA.game.sessionId) sel.value = DATA.game.sessionId; else if (cur && DATA.sessions.some(s => String(s.id) === cur)) sel.value = cur;
+  else { const firstPending = DATA.sessions.find(s => s.status !== 'done'); if (firstPending) sel.value = firstPending.id; }
+  $('#lanWarn').innerHTML = /localhost|127\.0\.0\.1/.test(DATA.joinUrl)
+    ? `<div class="warnbox">⚠ QR kod trenutno vodi na <b>${esc(DATA.joinUrl)}</b> — telefoni neće moći da se povežu. Podesite <code>publicUrl</code> u config.json.</div>` : '';
+  renderLive();
+}
+
+/* ---------------- upravljanje */
+async function act(action, extra = {}) {
+  try { await adm('/api/admin/action', { method: 'POST', body: { action, ...extra } }); loadData(); }
+  catch (e) {
+    if (e.data && e.data.code === 'hasAnswers') {
+      if (confirm(e.message)) return act(action, { ...extra, questionId: e.data.questionId, force: true });
+      return;
+    }
+    toast(e.message, true);
+  }
+}
+$('#openBtn').onclick = () => {
+  const id = Number($('#sessSel').value);
+  if (STATE && STATE.session && STATE.session.id !== id && ['question', 'closed'].includes(STATE.phase) && !confirm('Pitanje u drugoj sesiji je u toku. Ipak promeniti sesiju?')) return;
+  act('openSession', { sessionId: id });
+};
+$$('[data-act]').forEach(b => b.onclick = () => {
+  const a = b.dataset.act;
+  if (a === 'endSession' && !confirm('Završiti sesiju? Veliki ekran se vraća na početni (QR kod).')) return;
+  act(a, b.dataset.scope ? { scope: b.dataset.scope } : {});
+});
+
+function curSession() { return DATA && STATE && STATE.session ? DATA.sessions.find(s => s.id === STATE.session.id) : null; }
+
+function renderStatus() {
+  if (!STATE) return;
+  $('#stPhase').textContent = PHASES[STATE.phase] || STATE.phase;
+  $('#stAnswered').textContent = STATE.question ? `${STATE.answered ?? 0} / ${STATE.registered}` : `– / ${STATE.registered}`;
+  $('#stConnected').textContent = DATA ? DATA.connected : '–';
+}
+
+function renderLive() {
+  if (!STATE) return;
+  renderStatus();
+  cancelAnimationFrame(raf);
+  if (STATE.phase === 'question' && STATE.question) {
+    const rem = makeDeadline(STATE.question.remainingMs, RECEIVED);
+    const tick = () => { const r = rem(); $('#stTimer').textContent = Math.ceil(r / 1000) + ' s'; if (r > 0) raf = requestAnimationFrame(tick); };
+    tick();
+  } else $('#stTimer').textContent = '–';
+
+  const ses = curSession(), ph = STATE.phase;
+  const qs = ses ? ses.questions : [];
+  const curQ = STATE.question ? STATE.question.id : null;
+  const curIdx = qs.findIndex(q => q.id === curQ);
+  const isLast = curIdx >= 0 && curIdx === qs.length - 1;
+  // predlog sledećeg koraka
+  $$('.ctrl .btn, #openBtn').forEach(b => b.classList.remove('suggest'));
+  let hint = '';
+  const sug = sel => { const el = $(sel); if (el) el.classList.add('suggest'); };
+  if (!ses) { sug('#openBtn'); hint = 'Izaberite sesiju i kliknite „Otvori sesiju”.'; }
+  else if (ph === 'lobby') { sug('#nextBtn'); hint = 'Kad su svi spremni, pokrenite prvo pitanje.'; }
+  else if (ph === 'question') { hint = 'Pitanje se zatvara automatski kad istekne vreme.'; sug('[data-act="closeQuestion"]'); }
+  else if (ph === 'closed') { sug('[data-act="reveal"]'); hint = 'Prikažite tačan odgovor.'; }
+  else if (ph === 'reveal') { if (isLast) { sug('[data-act="board"][data-scope="session"]'); hint = 'To je bilo poslednje pitanje — prikažite rang-listu sesije.'; } else { sug('#nextBtn'); hint = 'Pređite na sledeće pitanje.'; } }
+  else if (ph === 'board') { sug('[data-act="animals"][data-scope="session"]'); hint = 'Zatim takmičenje životinja, pa „Završi sesiju”.'; }
+  else if (ph === 'animals' || ph === 'stats') { sug('[data-act="endSession"]'); }
+  $('#nextHint').textContent = hint;
+  $('#nextBtn').disabled = !ses || ph === 'question' || (curIdx >= 0 && isLast && ['reveal', 'closed'].includes(ph));
+
+  $('#miniQ').innerHTML = qs.length ? qs.map((q, i) => `<tr class="${q.id === curQ ? 'current' : ''}">
+      <td>${i + 1}.</td><td>${esc(q.text)}<div class="small muted">${q.answers ? `${q.answers} odgovora · ${Math.round(q.correctAnswers / q.answers * 100)}% tačnih` : 'nije igrano'} · ${q.timeLimit} s</div></td>
+      <td class="num"><button class="btn" style="min-height:34px;padding:.2rem .6rem" data-start="${q.id}" ${ph === 'question' ? 'disabled' : ''}>▶</button></td></tr>`).join('')
+    : `<tr><td class="muted">${ses ? 'Sesija nema pitanja.' : 'Nijedna sesija nije otvorena.'}</td></tr>`;
+  $$('[data-start]').forEach(b => b.onclick = () => act('startQuestion', { questionId: Number(b.dataset.start) }));
+}
+
+/* ---------------- pitanja */
+function renderQuestions() {
+  const el = $('#qList');
+  el.innerHTML = DATA.sessions.map(s => `<div class="session-block">
+    <div class="session-head"><h3>${esc(s.name)} <span class="muted small">(${s.questions.length} pitanja${s.status === 'done' ? ', završena' : ''})</span></h3>
+      <button class="btn" data-addq="${s.id}">+ Pitanje</button>
+      <button class="btn" data-rens="${s.id}">Preimenuj</button>
+      <button class="btn danger" data-dels="${s.id}">Obriši</button></div>
+    ${s.questions.map((q, i) => `<div class="qitem">
+      <div class="qt">${i + 1}. ${esc(q.text)}</div>
+      <ol type="A">${q.options.map((o, j) => `<li class="${j === q.correct ? 'ok' : ''}">${esc(o)}${j === q.correct ? ' ✓' : ''}</li>`).join('')}</ol>
+      <div class="acts"><span class="small muted" style="margin-right:auto">${q.timeLimit} s · ${q.answers} odgovora</span>
+        <button class="btn" data-mv="${q.id}" data-d="-1" ${i === 0 ? 'disabled' : ''}>↑</button>
+        <button class="btn" data-mv="${q.id}" data-d="1" ${i === s.questions.length - 1 ? 'disabled' : ''}>↓</button>
+        <button class="btn" data-editq="${q.id}" data-s="${s.id}">Izmeni</button>
+        <button class="btn danger" data-delq="${q.id}">Obriši</button></div></div>`).join('') || '<p class="muted small">Nema pitanja.</p>'}
+  </div>`).join('') || '<p class="muted">Nema sesija.</p>';
+  $$('[data-addq]').forEach(b => b.onclick = () => openQ(Number(b.dataset.addq), null));
+  $$('[data-editq]').forEach(b => b.onclick = () => openQ(Number(b.dataset.s), Number(b.dataset.editq)));
+  $$('[data-delq]').forEach(b => b.onclick = async () => { if (!confirm('Obrisati pitanje i sve odgovore na njega?')) return; await save('/api/admin/question', { id: Number(b.dataset.delq), delete: true }); });
+  $$('[data-mv]').forEach(b => b.onclick = () => save('/api/admin/question', { id: Number(b.dataset.mv), move: Number(b.dataset.d) }));
+  $$('[data-rens]').forEach(b => b.onclick = async () => {
+    const s = DATA.sessions.find(x => x.id === Number(b.dataset.rens));
+    const name = prompt('Naziv sesije:', s.name); if (name) await save('/api/admin/session', { id: s.id, name });
+  });
+  $$('[data-dels]').forEach(b => b.onclick = async () => { if (!confirm('Obrisati sesiju sa svim pitanjima i odgovorima?')) return; await save('/api/admin/session', { id: Number(b.dataset.dels), delete: true }); });
+}
+async function save(path, body) {
+  try { await adm(path, { method: 'POST', body }); await loadData(); renderQuestions(); toast('Sačuvano'); return true; }
+  catch (e) { toast(e.message, true); return false; }
+}
+$('#addSessBtn').onclick = async () => { const name = prompt('Naziv nove sesije (npr. „Dan 3 - Sesija 2”):'); if (name) await save('/api/admin/session', { name }); };
+
+function openQ(sessionId, qid) {
+  const q = qid ? DATA.sessions.find(s => s.id === sessionId).questions.find(x => x.id === qid) : null;
+  editing = { sessionId, id: qid };
+  $('#qDlgTitle').textContent = q ? 'Izmena pitanja' : 'Novo pitanje';
+  $('#qText').value = q ? q.text : '';
+  $('#qTime').value = q ? q.timeLimit : 20;
+  $('#qOpts').innerHTML = [0, 1, 2, 3].map(i => `<div class="optrow">
+    <label><input type="radio" name="qCorrect" value="${i}" ${(q ? q.correct : 0) === i ? 'checked' : ''}> <span class="opt-${'abcd'[i]}" style="color:var(--opt)">${shapeHtml(i)}</span> ${LETTERS[i]}</label>
+    <input class="input" data-opt="${i}" value="${esc(q && q.options[i] !== undefined ? q.options[i] : '')}"></div>`).join('');
+  $('#qErr').hidden = true;
+  $('#qDlg').showModal();
+}
+$('#qForm').onsubmit = async e => {
+  if (e.submitter && e.submitter.value === 'cancel') return;
+  e.preventDefault();
+  const opts = $$('[data-opt]').map(i => i.value.trim());
+  const correctIdx = Number(($('input[name=qCorrect]:checked') || {}).value || 0);
+  if (!opts[correctIdx]) { $('#qErr').textContent = 'Tačan odgovor ne može biti prazan.'; $('#qErr').hidden = false; return; }
+  // ukloni prazne, sačuvaj poziciju tačnog
+  const kept = []; let newCorrect = 0;
+  opts.forEach((o, i) => { if (o) { if (i === correctIdx) newCorrect = kept.length; kept.push(o); } });
+  const body = { id: editing.id || undefined, sessionId: editing.sessionId, text: $('#qText').value, options: kept, correct: newCorrect, timeLimit: Number($('#qTime').value) };
+  try { await adm('/api/admin/question', { method: 'POST', body }); $('#qDlg').close(); await loadData(); renderQuestions(); toast('Sačuvano'); }
+  catch (err) { $('#qErr').textContent = err.message; $('#qErr').hidden = false; }
+};
+$('#expQ').onclick = e => { e.preventDefault(); download('/api/admin/export/questions.json', 'pitanja.json'); };
+$('#impQ').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  if (!confirm('Uvoz zamenjuje SVA pitanja i briše SVE odgovore. Nastaviti?')) return;
+  try { const json = JSON.parse(await f.text()); await adm('/api/admin/import', { method: 'POST', body: json }); await loadData(); renderQuestions(); toast('Pitanja su uvezena'); }
+  catch (err) { toast(err.message, true); }
+};
+
+/* ---------------- učesnici */
+let pTimer;
+$('#pSearch').oninput = () => { clearTimeout(pTimer); pTimer = setTimeout(loadPeople, 250); };
+async function loadPeople() {
+  const r = await adm('/api/admin/participants?q=' + encodeURIComponent($('#pSearch').value));
+  const an = id => (DATA.animals.find(a => a.id === id) || { emoji: '❔', name: id });
+  $('#pTable').innerHTML = `<tr><th></th><th>Nadimak</th><th class="num">Odgovora</th><th class="num">Bodova</th><th>Status</th><th></th></tr>` +
+    (r.rows.map(p => `<tr><td class="emoji" style="font-size:1.4rem" title="${esc(an(p.animal).name)}">${an(p.animal).emoji}</td>
+      <td>${esc(p.nickname)}</td><td class="num">${p.answered}</td><td class="num">${fmtNum(p.points)}</td>
+      <td>${p.disabled ? '<span class="pill" style="color:var(--bad)">deaktiviran</span>' : '<span class="pill">aktivan</span>'}</td>
+      <td class="num"><div class="row" style="justify-content:flex-end">
+        <button class="btn" data-pin="${p.id}" style="min-height:34px;padding:.2rem .6rem">Novi PIN</button>
+        <button class="btn" data-ren="${p.id}" data-n="${esc(p.nickname)}" style="min-height:34px;padding:.2rem .6rem">Preimenuj</button>
+        <button class="btn ${p.disabled ? '' : 'danger'}" data-tog="${p.id}" data-on="${p.disabled}" style="min-height:34px;padding:.2rem .6rem">${p.disabled ? 'Aktiviraj' : 'Deaktiviraj'}</button>
+      </div></td></tr>`).join('') || '<tr><td colspan="6" class="muted">Nema učesnika.</td></tr>');
+  const call = async (body, ok) => { try { await adm('/api/admin/participant', { method: 'POST', body }); toast(ok); loadPeople(); } catch (e) { toast(e.message, true); } };
+  $$('[data-pin]').forEach(b => b.onclick = () => { const pin = prompt('Novi PIN (4 cifre) — saopštite ga učesniku:'); if (pin) call({ id: Number(b.dataset.pin), action: 'resetPin', pin }, `PIN je promenjen na ${pin}`); });
+  $$('[data-ren]').forEach(b => b.onclick = () => { const n = prompt('Novi nadimak:', b.dataset.n); if (n) call({ id: Number(b.dataset.ren), action: 'rename', nickname: n }, 'Preimenovano'); });
+  $$('[data-tog]').forEach(b => b.onclick = () => call({ id: Number(b.dataset.tog), action: b.dataset.on === '1' ? 'enable' : 'disable' }, 'Sačuvano'));
+}
+
+/* ---------------- statistika */
+function fillStatSel() {
+  const sel = $('#statSel'), cur = sel.value;
+  sel.innerHTML = `<option value="">Sve sesije (ukupno)</option>` + DATA.sessions.map(s => `<option value="${s.id}">${esc(s.name)}</option>`).join('');
+  sel.value = cur;
+}
+$('#statSel').onchange = loadStats;
+$('#expA').onclick = e => { e.preventDefault(); download('/api/admin/export/answers.csv', 'odgovori.csv'); };
+$('#expR').onclick = e => { e.preventDefault(); download('/api/admin/export/ranking.csv', 'rang-lista.csv'); };
+async function loadStats() {
+  const sid = $('#statSel').value;
+  const r = await adm('/api/admin/stats' + (sid ? '?sessionId=' + sid : ''));
+  const s = r.summary;
+  const ses = sid ? DATA.sessions.filter(x => String(x.id) === sid) : DATA.sessions;
+  $('#statBody').innerHTML = `
+    <div class="status">
+      <div class="card"><div class="v tabular">${fmtNum(s.players)}</div><div class="l">učesnika odgovaralo (od ${s.registered})</div></div>
+      <div class="card"><div class="v tabular">${fmtNum(s.answers)}</div><div class="l">odgovora</div></div>
+      <div class="card"><div class="v tabular">${s.answers ? fmtPct(s.accuracy) : '–'}</div><div class="l">tačnih</div></div>
+      <div class="card"><div class="v tabular">${s.fastest ? fmtDec(s.fastest.ms / 1000, 2) + ' s' : '–'}</div><div class="l">najbrži tačan odgovor</div></div>
+    </div>
+    <div class="cols">
+      <div><h3>Životinje</h3><table><tr><th></th><th>Životinja</th><th class="num">Igrača</th><th class="num">Tačnih</th><th class="num">Po igraču</th><th class="num">Tačnost</th></tr>
+        ${r.animals.rows.map(a => `<tr><td>${a.rank}.</td><td><span class="emoji">${a.emoji}</span> ${esc(a.name)}</td><td class="num">${a.players}</td><td class="num">${a.correct}</td><td class="num">${fmtDec(a.avgCorrect, 2)}</td><td class="num">${a.answers ? fmtPct(a.accuracy) : '–'}</td></tr>`).join('')}</table>
+        <p class="small muted">Redosled: ${r.animals.rankBy === 'avgCorrect' ? 'prosečan broj tačnih po igraču' : 'ukupan broj tačnih odgovora'} (podešava se u config.json, <code>animalRankBy</code>).</p></div>
+      <div><h3>Top 20</h3><table><tr><th></th><th>Učesnik</th><th class="num">Tačnih</th><th class="num">Bodova</th></tr>
+        ${r.top.map(p => `<tr><td>${p.rank}.</td><td><span class="emoji">${(DATA.animals.find(a => a.id === p.animal) || {}).emoji || ''}</span> ${esc(p.nickname)}</td><td class="num">${p.correct}/${p.answered}</td><td class="num">${fmtNum(p.points)}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">Nema podataka.</td></tr>'}</table></div>
+    </div>
+    <h3>Pitanja</h3>
+    <table><tr><th>Sesija</th><th>Pitanje</th><th class="num">Odgovora</th><th class="num">Tačnih</th></tr>
+      ${ses.flatMap(x => x.questions.map(q => `<tr><td class="small">${esc(x.name)}</td><td>${esc(q.text)}</td><td class="num">${q.answers}</td><td class="num">${q.answers ? Math.round(q.correctAnswers / q.answers * 100) + '%' : '–'}</td></tr>`)).join('')}</table>`;
+}
+
+/* ---------------- podaci */
+function renderDataTab() {
+  $('#joinLbl2').textContent = DATA.joinUrl;
+  $('#lanList').innerHTML = DATA.lanUrls.map(u => `<li>${esc(u)}</li>`).join('') || '<li>nije pronađena mrežna adresa</li>';
+}
+async function doReset(what) {
+  const msg = what === 'all' ? 'Brišu se SVI odgovori i SVI učesnici (moraće ponovo da se prijave).' : 'Brišu se SVI odgovori (učesnici ostaju prijavljeni).';
+  const c = prompt(msg + '\n\nZa potvrdu upišite: OBRIŠI');
+  if (c === null) return;
+  try { await adm('/api/admin/reset', { method: 'POST', body: { what, confirm: c.trim().toUpperCase() } }); toast('Obrisano'); loadData(); }
+  catch (e) { toast(e.message, true); }
+}
+$('#resetAns').onclick = () => doReset('answers');
+$('#resetAll').onclick = () => doReset('all');
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+/* DMSS kviz — tamna „scenska” tema za veliki ekran i telefone (v1.1) */
+:root {
+  --ink: #f5f7ff;
+  --ink-2: #b9c2e0;
+  --ink-3: #7d88ad;
+  --night: #060a1c;
+  --glass: rgba(255, 255, 255, .06);
+  --glass-2: rgba(255, 255, 255, .1);
+  --glass-line: rgba(255, 255, 255, .13);
+  --violet: #8b5cf6;
+  --blue: #3b82f6;
+  --cyan: #22d3ee;
+  --pink: #ec4899;
+  --gold: #fbbf24;
+  --good: #34d399;
+  --bad2: #fb7185;
+  --g-brand: linear-gradient(120deg, #a78bfa 0%, #60a5fa 45%, #22d3ee 100%);
+  --g-a: linear-gradient(140deg, #ff6b7a 0%, #e11d48 100%);
+  --g-b: linear-gradient(140deg, #60a5fa 0%, #4338ca 100%);
+  --g-c: linear-gradient(140deg, #fbbf24 0%, #c2410c 100%);
+  --g-d: linear-gradient(140deg, #34d399 0%, #047857 100%);
+  color-scheme: dark;
+}
+body.stage-theme {
+  background: var(--night);
+  color: var(--ink);
+  font-family: var(--font);
+  letter-spacing: -.005em;
+  word-spacing: .08em;   /* Jakarta ima uzak razmak — čitljivije sa projektora */
+}
+body.stage-theme h1, body.stage-theme h2, body.stage-theme .qtext { word-spacing: .12em; }
+
+/* --- pozadina: aurora + tačkasta mreža --- */
+.aurora { position: fixed; inset: 0; z-index: -2; overflow: hidden; pointer-events: none;
+  background:
+    radial-gradient(60vmax 50vmax at 10% 0%, rgba(139, 92, 246, .38), transparent 60%),
+    radial-gradient(55vmax 45vmax at 100% 20%, rgba(59, 130, 246, .32), transparent 60%),
+    radial-gradient(60vmax 50vmax at 60% 110%, rgba(236, 72, 153, .22), transparent 60%),
+    var(--night);
+}
+.aurora i { position: absolute; width: 55vmax; height: 55vmax; border-radius: 50%; filter: blur(80px); opacity: .45; mix-blend-mode: screen; }
+.aurora i:nth-child(1) { background: #7c3aed; left: -15vmax; top: -20vmax; animation: drift1 26s ease-in-out infinite alternate; }
+.aurora i:nth-child(2) { background: #2563eb; right: -20vmax; top: 10vmax; animation: drift2 32s ease-in-out infinite alternate; }
+.aurora i:nth-child(3) { background: #db2777; left: 20vmax; bottom: -30vmax; opacity: .3; animation: drift3 38s ease-in-out infinite alternate; }
+.aurora i:nth-child(4) { background: #0891b2; right: 10vmax; bottom: -25vmax; opacity: .3; animation: drift1 30s ease-in-out infinite alternate-reverse; }
+@keyframes drift1 { to { transform: translate(18vmax, 12vmax) scale(1.15); } }
+@keyframes drift2 { to { transform: translate(-22vmax, 14vmax) scale(.9); } }
+@keyframes drift3 { to { transform: translate(14vmax, -16vmax) scale(1.2); } }
+.gridfx { position: fixed; inset: 0; z-index: -1; pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, .09) 1px, transparent 1.2px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 75%);
+          mask-image: radial-gradient(ellipse at 50% 40%, #000 20%, transparent 75%);
+}
+/* telefoni: bez zamućenja i animacije pozadine (baterija, performanse) */
+.lite .aurora i { display: none; }
+
+/* --- staklo --- */
+.glass { background: var(--glass); border: 1px solid var(--glass-line); border-radius: 22px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .06) inset, 0 20px 50px -20px rgba(0, 0, 0, .6); }
+.blur { -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%); }
+.grad-text { background: var(--g-brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.eyebrow { display: inline-flex; align-items: center; gap: .5em; font-size: .78em; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2);
+  padding: .45em .9em; border-radius: 999px; background: var(--glass); border: 1px solid var(--glass-line); }
+.live-dot { width: .55em; height: .55em; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 0 rgba(52, 211, 153, .7); animation: ping 1.6s infinite; }
+@keyframes ping { 70% { box-shadow: 0 0 0 .6em rgba(52, 211, 153, 0); } 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0); } }
+
+/* --- odgovori A–D --- */
+.fx-a { --og: var(--g-a); --oc: #fb7185; }
+.fx-b { --og: var(--g-b); --oc: #60a5fa; }
+.fx-c { --og: var(--g-c); --oc: #fbbf24; }
+.fx-d { --og: var(--g-d); --oc: #34d399; }
+.badge { display: grid; place-items: center; flex: none; width: 1.9em; height: 1.9em; border-radius: .6em; background: rgba(255, 255, 255, .22);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .35) inset; color: #fff; }
+.badge .shape { font-size: .95em; }
+
+/* --- animacije --- */
+@keyframes rise { from { opacity: 0; transform: translateY(26px) scale(.97); } to { opacity: 1; transform: none; } }
+@keyframes pop { 0% { transform: scale(.6); opacity: 0; } 60% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes focusin { from { opacity: 0; filter: blur(12px); transform: translateY(10px); } to { opacity: 1; filter: blur(0); transform: none; } }
+@keyframes shake { 10%, 90% { transform: translateX(-2px); } 20%, 80% { transform: translateX(4px); } 30%, 50%, 70% { transform: translateX(-8px); } 40%, 60% { transform: translateX(8px); } }
+@keyframes floaty { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-10px) rotate(3deg); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pulse-ring { 0% { transform: scale(.8); opacity: .7; } 100% { transform: scale(1.9); opacity: 0; } }
+@keyframes shine { from { transform: translateX(-120%) skewX(-20deg); } to { transform: translateX(220%) skewX(-20deg); } }
+.rise { animation: rise .6s cubic-bezier(.2, .8, .2, 1) both; }
+.pop { animation: pop .55s cubic-bezier(.2, .8, .2, 1) both; }
+
+.confetti-canvas { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora i, .live-dot { animation: none !important; }
+  .rise, .pop { animation-duration: .01s !important; }
+}

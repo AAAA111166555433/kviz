@@ -1,0 +1,11 @@
+{
+  "name": "dmss-kviz",
+  "version": "1.3.0",
+  "description": "Kviz aplikacija za DMSS konferenciju (RZS) - učesnici, veliki ekran i voditelj",
+  "main": "server.js",
+  "private": true,
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js"
+  }
+}
